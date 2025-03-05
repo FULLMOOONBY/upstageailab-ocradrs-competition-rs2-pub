@@ -1,1 +1,0 @@
-print("Hello, Team No 2!")
