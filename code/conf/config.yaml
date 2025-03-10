@@ -1,0 +1,88 @@
+# 공통 설정
+common:
+  data_dir: "/root/Recommendation-2/data"  # 절대 경로 사용
+  data_file: "train_ts7.csv"
+  sample_submission: "sample_submission.csv"
+  dir_path: "/root/Recommendation-2/data"  # 절대 경로 사용
+  output_dir: "/root/Recommendation-2/dataset"  # 절대 경로 사용
+  output_file: "output.csv"
+  seed: 42
+  device: "cuda"  # "cpu" 또는 "cuda"
+
+
+# 모델 선택
+model:
+  type: "als"  # "sasrec" 또는 "als"
+  
+  # ALS 모델 설정
+  als:
+    model_path: null
+    num_factor: 8  # factors 대신 num_factor 사용
+    regularization: 0.001
+    iterations: 5
+    alpha: 1
+    factors: 100
+    num_threads: 0
+    use_gpu: true
+  
+  # SASRec 모델 설정도 model 아래로 이동
+  sasrec:
+    model_path: null  # 사전 학습된 모델 경로 (없으면 null)
+    
+    # 데이터 설정
+    data:
+      USER_ID_FIELD: 'user_idx'
+      ITEM_ID_FIELD: 'item_idx'
+      TIME_FIELD: 'event_time'
+      user_inter_num_interval: "[5,Inf)"
+      item_inter_num_interval: "[5,Inf)"
+      load_col:
+        inter: ['user_idx', 'item_idx', 'event_time']
+    
+    # 모델 하이퍼파라미터
+    model:
+      train_batch_size: 4096
+      hidden_size: 64
+      n_layers: 2
+      n_heads: 4
+      inner_size: 64
+      hidden_dropout_prob: 0.2
+      attn_dropout_prob: 0.2
+      hidden_act: 'gelu'
+      layer_norm_eps: 1e-12
+      initializer_range: 0.02
+      pooling_mode: 'sum'
+      loss_type: 'BPR'
+      fusion_type: 'gate'
+      attribute_predictor: 'linear'
+      epoch: 1
+      stopping_step: 5
+      MAX_ITEM_LIST_LENGTH: 50
+      eval_args:
+        split:
+          LS: 'valid_and_test'
+        group_by: 'user'
+        order: 'TO'
+        mode: 'uni100'
+      metrics: ['Recall', 'NDCG']
+      topk: 10
+      valid_metric: 'NDCG@10'
+      checkpoint_dir: '/content'
+
+# 추천 설정
+recommendation:
+  top_n: 10
+
+# wandb 설정
+wandb:
+  use: True
+  project: "recommendation_system"
+  sweep: False  # sweep 모드 여부
+  dir: "/root/Recommendation-2/wandb_outputs"  # 결과파일 저장되는 공간
+# Hydra 설정
+hydra:
+  run:
+    dir: .  # 현재 디렉토리에서 실행 (선택 사항)
+  sweep:
+    dir: multirun
+    subdir: ${hydra.job.num}
