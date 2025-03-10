@@ -7,6 +7,7 @@ def cal_ndcg(sub_df, valid_dir):
     # sub_df는 최종 제출 형식의 추론 파일, train 데이터로 학습한 후 추론한 파일임
     
     valid_df = pd.read_csv(valid_dir)
+    valid_df = valid_df[valid_df['event_type'] == 'purchase']
     sub_df = sub_df[sub_df['user_id'].isin(valid_df['user_id'].unique())]
 
     # ✅ 실제 ground truth 데이터 (valid_df)를 dictionary 형태로 변환 (set 사용)
